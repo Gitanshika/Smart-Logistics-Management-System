@@ -11,7 +11,10 @@ const {
   getAssignedShipments,
   updateShipmentStatus,
   trackShipment,
-  getAllShipments
+  getAllShipments,
+  getCustomerDashboard,
+  getAdminDashboard,
+  getDriverDashboard,
 } = require("../controllers/shipment.controller");
 
 router.put(
@@ -46,6 +49,26 @@ router.get(
   authMiddleware,
   authorizeRoles("admin"),
   getAllShipments
+);
+
+router.get(
+  "/dashboard",
+  authMiddleware,
+  getCustomerDashboard
+);
+
+router.get(
+  "/admin-dashboard",
+  authMiddleware,
+  authorizeRoles("admin"),
+  getAdminDashboard
+);
+
+router.get(
+  "/driver-dashboard",
+  authMiddleware,
+  authorizeRoles("driver"),
+  getDriverDashboard
 );
 
 router.post("/", authMiddleware, createShipment);

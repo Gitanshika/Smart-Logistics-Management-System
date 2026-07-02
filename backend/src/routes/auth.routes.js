@@ -5,15 +5,37 @@ const {
   registerUser,
   login,
   getProfile,
+  getDrivers,
+  createDriver,
 } = require("../controllers/auth.controller");
-const authorizeRoles = require("../middleware/role.middleware");
 
+const authorizeRoles = require("../middleware/role.middleware");
 const authMiddleware = require("../middleware/auth.middleware");
 
-// REGISTER ROUTE
+// REGISTER
 router.post("/register", registerUser);
+
+// LOGIN
 router.post("/login", login);
+
+// PROFILE
 router.get("/profile", authMiddleware, getProfile);
+//create driver
+router.post(
+  "/create-driver",
+  authMiddleware,
+  authorizeRoles("admin"),
+  createDriver
+);
+// GET ALL DRIVERS (Admin Only)
+router.get(
+  "/drivers",
+  authMiddleware,
+  authorizeRoles("admin"),
+  getDrivers
+);
+
+// ADMIN TEST
 router.get(
   "/admin-test",
   authMiddleware,
@@ -24,4 +46,5 @@ router.get(
     });
   }
 );
+
 module.exports = router;

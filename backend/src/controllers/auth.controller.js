@@ -115,8 +115,57 @@ const getProfile = async (req, res) => {
     });
   }
 };
+const createDriver = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const existingDriver = await User.findOne({ email });
+
+    if (existingDriver) {
+      return res.status(400).json({
+        message: "Driver already exists",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const driver = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: "driver",
+    });
+
+    return res.status(201).json({
+      message: "Driver created successfully",
+      driver,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
+const getDrivers = async (req, res) => {
+  try {
+    const drivers = await User.find({ role: "driver" }).select("name email");
+
+    res.status(200).json({
+      drivers,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   login,
   getProfile,
+  getDrivers,
+  createDriver,
 };

@@ -197,6 +197,107 @@ const getAllShipments = async (req, res) => {
   }
 };
 
+const getCustomerDashboard = async (req, res) => {
+  try {
+    const shipments = await Shipment.find({
+  customer: req.user.userId,
+});
+
+    const total = shipments.length;
+
+    const delivered = shipments.filter(
+      (s) => s.status === "Delivered"
+    ).length;
+
+    const inTransit = shipments.filter(
+      (s) =>
+        s.status === "In Transit" ||
+        s.status === "Assigned" ||
+        s.status === "Picked Up"
+    ).length;
+
+    res.json({
+      total,
+      delivered,
+      inTransit,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const getAdminDashboard = async (req, res) => {
+  try {
+    const shipments = await Shipment.find();
+
+    const User = require("../models/User");
+
+    const drivers = await User.countDocuments({
+      role: "driver",
+    });
+
+    const total = shipments.length;
+
+    const pending = shipments.filter(
+      (s) => s.status === "Pending"
+    ).length;
+
+    const delivered = shipments.filter(
+      (s) => s.status === "Delivered"
+    ).length;
+
+    res.status(200).json({
+      total,
+      pending,
+      delivered,
+      drivers,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const getDriverDashboard = async (req, res) => {
+  try {
+    const shipments = await Shipment.find({
+      driver: req.user.userId,
+    });
+
+    const assigned = shipments.filter(
+      (s) => s.status === "Assigned"
+    ).length;
+
+    const pickedUp = shipments.filter(
+      (s) => s.status === "Picked Up"
+    ).length;
+
+    const inTransit = shipments.filter(
+      (s) => s.status === "In Transit"
+    ).length;
+
+    const delivered = shipments.filter(
+      (s) => s.status === "Delivered"
+    ).length;
+
+    return res.status(200).json({
+      assigned,
+      pickedUp,
+      inTransit,
+      delivered,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   createShipment,
   getMyShipments,
@@ -205,4 +306,7 @@ module.exports = {
   updateShipmentStatus,
   trackShipment,
   getAllShipments,
+  getCustomerDashboard,
+  getAdminDashboard,
+  getDriverDashboard,
 };
